@@ -1,41 +1,35 @@
-# Modèle
+# Model
 
-`resnet50v2_faceguard.keras` — 97 Mo, inclus dans le dépôt.
+`resnet50v2_faceguard.keras` (97 MB, included in the repository).
 
-Le serveur charge automatiquement le premier fichier `.keras` ou `.h5` trouvé
-dans ce dossier, il n'y a donc rien à configurer.
+The server automatically loads the first `.keras` or `.h5` file found in this folder, so there is nothing to configure.
 
-## Caractéristiques
+## Characteristics
 
 | | |
 |---|---|
-| Architecture | ResNet50V2 pré-entraîné ImageNet + tête binaire |
-| Entrée | 224 × 224 × 3, pixels normalisés dans **[0, 1]** |
-| Sortie | 1 neurone sigmoid — proche de **1 = image réelle** |
-| Accuracy | 89,64 % sur 5 714 images de test |
-| AUC | 96,30 % |
+| Architecture | ResNet50V2 pre-trained on ImageNet + binary head |
+| Input | 224x224x3, pixels normalized to **[0, 1]** |
+| Output | 1 sigmoid neuron, close to **1 = real image** |
+| Accuracy | 89.64% on 5,714 test images |
+| AUC | 96.30% |
 
-Le fichier a été réexporté sans l'état de l'optimiseur : 97 Mo au lieu de 277,
-pour des prédictions strictement identiques. Les 180 Mo retirés étaient les
-moments de l'optimiseur Adam, utiles seulement pour reprendre un entraînement.
+The file was re-exported without the optimizer state: 97 MB instead of 277, for strictly identical predictions. The 180 MB removed were the Adam optimizer moments, useful only to resume training.
 
-## Utiliser un autre fichier
+## Using another file
 
-Pour pointer vers un modèle situé ailleurs :
+To point to a model located elsewhere:
 
 ```bash
 # Windows
-set FACEGUARD_MODEL=C:\chemin\vers\mon_modele.keras && run.bat
+set FACEGUARD_MODEL=C:\path\to\my_model.keras && run.bat
 
 # macOS / Linux
-FACEGUARD_MODEL=/chemin/vers/mon_modele.keras ./run.sh
+FACEGUARD_MODEL=/path/to/my_model.keras ./run.sh
 ```
 
-Il doit respecter la même convention : entrée 224 × 224 × 3 normalisée dans
-[0, 1], sortie d'un seul neurone sigmoid. Voir `app/model.py`.
+It must follow the same convention: input 224x224x3 normalized to [0, 1], output of a single sigmoid neuron. See `app/model.py`.
 
 ## Note
 
-Les formats `.h5`, `.pt`, `.pth` et `.onnx` sont exclus du versionnement. Le
-`.h5` d'origine fait 277 Mo, ce qui dépasse la limite de 100 Mo par fichier
-imposée par GitHub : son push serait refusé.
+The `.h5`, `.pt`, `.pth` and `.onnx` formats are excluded from version control. The original `.h5` is 277 MB, which exceeds GitHub's 100 MB per-file limit, so its push would be rejected.
