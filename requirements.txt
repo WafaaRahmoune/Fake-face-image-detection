@@ -1,0 +1,9 @@
+# FaceGuard — dépendances d'inférence uniquement.
+# Le serveur web n'utilise que la bibliothèque standard de Python.
+#
+# Python 3.10 ou 3.11 recommandé (TensorFlow 2.20 ne supporte pas encore 3.13+).
+
+tensorflow>=2.16,<3
+pillow>=10
+numpy>=1.26
+h5py>=3.10

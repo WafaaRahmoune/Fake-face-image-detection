@@ -1,0 +1,32 @@
+# ── Modèles ────────────────────────────────────────────────────────────────
+# Le ResNet50V2 pèse 97 Mo, au-delà de la limite confortable de GitHub.
+# Il se distribue via les Releases du dépôt, pas via git. Voir le README.
+models/*.keras
+models/*.h5
+models/*.pt
+models/*.pth
+models/*.onnx
+
+# ── Données ────────────────────────────────────────────────────────────────
+# Le jeu de données fait ~1 Go (40 000 images) et vient de Kaggle.
+data/
+*.rar
+*.zip
+
+# ── Python ─────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# ── Jupyter ────────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+
+# ── Système et éditeurs ────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/

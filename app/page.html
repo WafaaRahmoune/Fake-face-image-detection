@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FaceGuard — Real or AI-Generated Face Detection</title>
+<link rel="icon" type="image/png" href="/assets/marque.png">
+<style>
+  :root {
+    --vert:       #10B981;
+    --vert-fonce: #059669;
+    --vert-pale:  #ECFDF5;
+    --vert-bord:  #D1FAE5;
+    --violet:     #7C3AED;
+    --violet-pale:#F5F3FF;
+    --violet-bord:#E9E2FB;
+    --encre:      #1F2937;
+    --texte:      #4B5563;
+    --gris:       #9AA3AF;
+    --ligne:      #E9EDF2;
+    --blanc:      #FFFFFF;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0; min-height: 100vh; position: relative; overflow-x: hidden;
+    background: #FDFEFE; color: var(--texte);
+    font-family: 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    line-height: 1.55; -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── taches vertes diffuses en arriere-plan ── */
+  .halo { position: fixed; border-radius: 50%; filter: blur(58px); z-index: 0; pointer-events: none; }
+  .halo.a { width: 460px; height: 460px; top: -190px;   left: -170px; background: rgba(16,185,129,.13); }
+  .halo.b { width: 300px; height: 300px; top: -70px;    right: -110px; background: rgba(16,185,129,.11); }
+  .halo.c { width: 480px; height: 480px; bottom: -230px; right: -160px; background: rgba(16,185,129,.12); }
+  .halo.d { width: 260px; height: 260px; bottom: -130px; left: -110px; background: rgba(16,185,129,.08); }
+
+  .page { position: relative; z-index: 1; max-width: 1140px; margin: 0 auto; padding: 44px 24px 40px; }
+
+  /* ── en-tete ── */
+  .entete { text-align: center; margin-bottom: 30px; }
+  .marque { display: inline-flex; align-items: center; gap: 14px; }
+  .marque img { width: 56px; height: 56px; mix-blend-mode: multiply; }
+  .titre { font-size: 2.5rem; font-weight: 700; color: var(--encre); letter-spacing: -.02em; line-height: 1; }
+  .titre em { font-style: normal; color: var(--vert); }
+  .accroche { color: var(--gris); font-size: .96rem; margin: 12px 0 0; }
+
+  /* ── grande carte ── */
+  .cadre {
+    background: rgba(255,255,255,.72); border: 1px solid rgba(233,237,242,.9);
+    border-radius: 26px; padding: 26px; backdrop-filter: blur(6px);
+    box-shadow: 0 1px 3px rgba(31,41,55,.03), 0 18px 50px rgba(31,41,55,.05);
+  }
+  .duo { display: grid; grid-template-columns: 1fr 1.25fr; gap: 26px; align-items: start; }
+  @media (max-width: 900px) { .duo { grid-template-columns: 1fr; } }
+
+  /* ── colonne import ── */
+  .depot {
+    border: 2px dashed #D6DEE6; border-radius: 18px; padding: 44px 22px;
+    text-align: center; cursor: pointer; transition: .18s; background: rgba(255,255,255,.5);
+  }
+  .depot:hover, .depot.actif { border-color: var(--vert); background: var(--vert-pale); }
+  .cercle-icone {
+    width: 108px; height: 108px; border-radius: 50%; background: var(--vert-pale);
+    display: grid; place-items: center; margin: 0 auto 22px; color: var(--vert);
+  }
+  .depot .fort { display: block; font-size: 1.08rem; font-weight: 700; color: var(--encre); }
+  .depot .clic { display: block; font-size: .92rem; color: var(--texte); margin-top: 3px; }
+  .depot .clic em { font-style: normal; color: var(--vert); font-weight: 600; }
+  .depot .mini { display: block; font-size: .76rem; color: var(--gris); margin-top: 14px; }
+
+  .apercu-hote { position: relative; }
+  #apercu { width: 100%; border-radius: 16px; display: block; }
+  .retirer {
+    position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,.94);
+    border: 1px solid var(--ligne); border-radius: 9px; padding: 6px 11px; font-size: .78rem;
+    color: var(--texte); cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .retirer:hover { color: #DC2626; border-color: #FCA5A5; }
+
+  .ou { display: flex; align-items: center; gap: 14px; margin: 20px 0; color: var(--gris); font-size: .82rem; }
+  .ou::before, .ou::after { content: ''; flex: 1; height: 1px; background: var(--ligne); }
+
+  .bouton-vert {
+    width: 100%; background: var(--vert); color: #fff; border: none; border-radius: 12px;
+    padding: 14px 20px; font-size: .96rem; font-weight: 600; font-family: inherit; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+    box-shadow: 0 4px 14px rgba(16,185,129,.3); transition: .16s;
+  }
+  .bouton-vert:hover:not(:disabled) { background: var(--vert-fonce); box-shadow: 0 6px 18px rgba(16,185,129,.36); }
+  .bouton-vert:disabled { background: #CBD5DD; box-shadow: none; cursor: default; }
+
+  /* ── colonne resultat ── */
+  .bloc {
+    background: var(--blanc); border: 1px solid var(--ligne); border-radius: 18px; padding: 20px;
+    box-shadow: 0 1px 2px rgba(31,41,55,.03);
+  }
+  .bloc + .bloc { margin-top: 18px; }
+  .tete { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+  .tete .nom { font-size: 1.02rem; font-weight: 700; color: var(--encre); }
+  .jeton {
+    margin-left: auto; display: inline-flex; align-items: center; gap: 6px;
+    font-size: .76rem; font-weight: 600; padding: 5px 12px; border-radius: 999px;
+    background: #F3F4F6; color: var(--gris);
+  }
+  .jeton.fini { background: var(--vert-pale); color: var(--vert-fonce); }
+  .point { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+  .verdict {
+    display: flex; align-items: center; gap: 22px; padding: 22px;
+    border: 1px solid var(--ligne); border-radius: 16px; background: #FCFDFD;
+  }
+  .anneau { position: relative; width: 104px; height: 104px; flex: none; }
+  .anneau svg { transform: rotate(-90deg); }
+  .pastille-check {
+    position: absolute; inset: 14px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--vert); color: #fff; box-shadow: 0 4px 14px rgba(16,185,129,.35);
+  }
+  .verdict.fake .pastille-check { background: var(--violet); box-shadow: 0 4px 14px rgba(124,58,237,.32); }
+  .mot { font-size: 2.15rem; font-weight: 800; letter-spacing: -.02em; line-height: 1.05; color: var(--vert); }
+  .verdict.fake .mot { color: var(--violet); }
+  .sous-mot { font-size: .98rem; color: var(--encre); font-weight: 500; }
+  .ecusson {
+    margin-left: auto; width: 44px; height: 44px; border-radius: 50%; flex: none;
+    background: var(--vert-pale); color: var(--vert); display: grid; place-items: center;
+  }
+  .verdict.fake .ecusson { background: var(--violet-pale); color: var(--violet); }
+  @media (max-width: 460px) { .ecusson { display: none; } }
+
+  .ligne-conf { display: flex; align-items: center; margin-top: 24px; }
+  .ligne-conf .lib { font-size: .96rem; font-weight: 700; color: var(--encre); display: flex; align-items: center; gap: 6px; }
+  .ligne-conf .lib svg { color: var(--gris); }
+  .pourcent { margin-left: auto; font-size: 1.85rem; font-weight: 800; letter-spacing: -.02em; color: var(--vert); }
+  .pourcent.fake { color: var(--violet); }
+  .piste { height: 10px; border-radius: 6px; background: #EEF1F4; overflow: hidden; margin: 12px 0 8px; }
+  .piste > div {
+    height: 100%; width: 0; border-radius: 6px;
+    background: linear-gradient(90deg, var(--vert), var(--vert-fonce));
+    transition: width .7s cubic-bezier(.4,0,.2,1);
+  }
+  .piste > div.fake { background: linear-gradient(90deg, #A78BFA, var(--violet)); }
+  .reperes { display: flex; justify-content: space-between; font-size: .76rem; color: var(--gris); }
+
+  .encadre {
+    display: flex; gap: 12px; align-items: flex-start; margin-top: 22px;
+    padding: 17px 18px; border-radius: 14px; font-size: .88rem; line-height: 1.5;
+  }
+  .encadre.real { background: var(--vert-pale); border: 1px solid var(--vert-bord); color: #065F46; }
+  .encadre.fake { background: var(--violet-pale); border: 1px solid var(--violet-bord); color: #5B21B6; }
+  .encadre svg { flex: none; margin-top: 2px; }
+
+  .attente { text-align: center; padding: 58px 16px; color: var(--gris); font-size: .9rem; }
+  .attente .cercle-icone { width: 76px; height: 76px; background: #F3F5F7; color: #CBD5DD; margin-bottom: 16px; }
+
+  .page { padding-bottom: 56px; }
+</style>
+</head>
+<body>
+
+<div class="halo a"></div><div class="halo b"></div>
+<div class="halo c"></div><div class="halo d"></div>
+
+<div class="page">
+
+  <div class="entete">
+    <div class="marque">
+      <img src="/assets/marque.png" alt="">
+      <div class="titre">Face<em>Guard</em></div>
+    </div>
+    <p class="accroche">Detect whether a face is real or AI-generated</p>
+  </div>
+
+  <div class="cadre">
+    <div class="duo">
+
+      <!-- ═══ import ═══ -->
+      <div>
+        <div class="depot" id="depot">
+          <div class="cercle-icone">
+            <svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 16.5V8m0 0-3.2 3.2M12 8l3.2 3.2"/>
+              <path d="M20 16.9A5 5 0 0 0 18 7.2h-1.3A8 8 0 1 0 4 15.4"/>
+            </svg>
+          </div>
+          <span class="fort">Drag &amp; drop a face image here</span>
+          <span class="clic">or click to <em>browse</em></span>
+          <span class="mini">Supports: JPG, PNG, JPEG</span>
+        </div>
+
+        <div class="apercu-hote" id="hote" style="display:none">
+          <img id="apercu" alt="">
+          <button class="retirer" id="btnRetirer">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            Remove
+          </button>
+        </div>
+
+        <input type="file" id="fichier" accept="image/*" hidden>
+
+        <div class="ou">or</div>
+
+        <button class="bouton-vert" id="btnAnalyser" disabled>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2.5"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/>
+          </svg>
+          <span id="txtAnalyser">Upload Image</span>
+        </button>
+
+      </div>
+
+      <!-- ═══ resultat ═══ -->
+      <div>
+        <div class="bloc">
+          <div class="tete">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#6366F1" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3v3.2M12 17.8V21M4.2 12H7M17 12h2.8M6.4 6.4l2 2M15.6 15.6l2 2M17.6 6.4l-2 2M8.4 15.6l-2 2"/>
+              <circle cx="12" cy="12" r="2.8"/>
+            </svg>
+            <span class="nom">Analysis Result</span>
+            <span class="jeton" id="jeton"><span class="point"></span><span id="jeton-txt">Waiting</span></span>
+          </div>
+
+          <div class="attente" id="attente">
+            <div class="cercle-icone">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+              </svg>
+            </div>
+            Upload a face image to run the analysis.
+          </div>
+
+          <div id="resultat" style="display:none">
+            <div class="verdict" id="verdict">
+              <div class="anneau">
+                <svg width="104" height="104" viewBox="0 0 104 104">
+                  <circle cx="52" cy="52" r="47" fill="none" stroke="#EEF1F4" stroke-width="6"/>
+                  <circle id="arc" cx="52" cy="52" r="47" fill="none" stroke="var(--vert)" stroke-width="6"
+                          stroke-linecap="round" stroke-dasharray="295.3" stroke-dashoffset="295.3"
+                          style="transition:stroke-dashoffset .8s cubic-bezier(.4,0,.2,1)"/>
+                </svg>
+                <div class="pastille-check" id="pastille"></div>
+              </div>
+              <div>
+                <div class="mot" id="mot">—</div>
+                <div class="sous-mot" id="sous-mot"></div>
+              </div>
+              <div class="ecusson" id="ecusson"></div>
+            </div>
+
+            <div class="ligne-conf">
+              <span class="lib">Confidence Score
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
+              </span>
+              <span class="pourcent" id="pourcent">—</span>
+            </div>
+            <div class="piste"><div id="barre"></div></div>
+            <div class="reperes"><span>0%</span><span>50%</span><span>100%</span></div>
+
+            <div class="encadre" id="encadre"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const CIRCONFERENCE = 2 * Math.PI * 47;   // rayon 47 du cercle SVG
+
+let imageCourante = null;
+
+const CHECK = '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 5 5L19 7"/></svg>';
+const PUCE  = '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></svg>';
+const BOUCLIER = '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 2.5v5.6c0 4.3-2.9 7.5-7 8.9-4.1-1.4-7-4.6-7-8.9V5.5Z"/><path d="m9 12 2 2 4-4"/></svg>';
+
+function reinit() {
+  $('resultat').style.display = 'none';
+  $('attente').style.display = 'block';
+  $('jeton').className = 'jeton';
+  $('jeton-txt').textContent = 'Waiting';
+}
+
+function afficher(dataUrl) {
+  imageCourante = dataUrl;
+  $('apercu').src = dataUrl;
+  $('hote').style.display = 'block';
+  $('depot').style.display = 'none';
+  $('btnAnalyser').disabled = false;
+  $('txtAnalyser').textContent = 'Analyze Image';
+  reinit();
+}
+
+function retirer() {
+  imageCourante = null;
+  $('hote').style.display = 'none';
+  $('depot').style.display = 'block';
+  $('btnAnalyser').disabled = true;
+  $('txtAnalyser').textContent = 'Upload Image';
+  $('fichier').value = '';
+  reinit();
+}
+$('btnRetirer').onclick = e => { e.stopPropagation(); retirer(); };
+
+function lireFichier(f) {
+  const l = new FileReader();
+  l.onload = e => afficher(e.target.result);
+  l.readAsDataURL(f);
+}
+$('depot').onclick = () => $('fichier').click();
+$('fichier').onchange = e => { if (e.target.files[0]) lireFichier(e.target.files[0]); };
+$('depot').ondragover  = e => { e.preventDefault(); $('depot').classList.add('actif'); };
+$('depot').ondragleave = () => $('depot').classList.remove('actif');
+$('depot').ondrop = e => {
+  e.preventDefault(); $('depot').classList.remove('actif');
+  if (e.dataTransfer.files[0]) lireFichier(e.dataTransfer.files[0]);
+};
+
+async function predire(dataUrl) {
+  const r = await fetch('/api/predict', {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({image: dataUrl})
+  });
+  return r.json();
+}
+
+function afficherResultat(d) {
+  const reel = d.label === 'real';
+  $('attente').style.display = 'none';
+  $('resultat').style.display = 'block';
+  $('jeton').className = 'jeton fini';
+  $('jeton-txt').textContent = 'Completed';
+
+  $('verdict').className = 'verdict ' + d.label;
+  $('pastille').innerHTML = reel ? CHECK : PUCE;
+  $('ecusson').innerHTML = BOUCLIER;
+  $('mot').textContent = reel ? 'REAL' : 'AI-GENERATED';
+  $('sous-mot').textContent = reel ? 'Authentic Face Detected' : 'Synthetic Face Detected';
+
+  $('arc').style.stroke = reel ? 'var(--vert)' : 'var(--violet)';
+  $('arc').style.strokeDashoffset = CIRCONFERENCE * (1 - d.confiance / 100);
+
+  $('pourcent').textContent = d.confiance.toFixed(1) + '%';
+  $('pourcent').className = 'pourcent' + (reel ? '' : ' fake');
+  $('barre').className = reel ? '' : 'fake';
+  $('barre').style.width = d.confiance + '%';
+
+  $('encadre').className = 'encadre ' + d.label;
+  $('encadre').innerHTML = BOUCLIER + '<span>' + (reel
+    ? 'This image is highly likely to be real and not generated by AI.'
+    : 'This image shows the signatures of AI generation.') + '</span>';
+}
+
+$('btnAnalyser').onclick = async () => {
+  if (!imageCourante) return;
+  const b = $('btnAnalyser');
+  b.disabled = true; $('txtAnalyser').textContent = 'Analyzing...';
+  try {
+    const d = await predire(imageCourante);
+    if (d.erreur) { alert('Error: ' + d.erreur); return; }
+    afficherResultat(d);
+  } finally {
+    b.disabled = false; $('txtAnalyser').textContent = 'Analyze Image';
+  }
+};
+</script>
+</body>
+</html>
