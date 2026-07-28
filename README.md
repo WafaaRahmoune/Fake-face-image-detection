@@ -2,52 +2,49 @@
 
 <img src="app/assets/logo.png" alt="FaceGuard" width="220">
 
-**Détection de visages générés par intelligence artificielle**
+**Detection of AI-generated faces**
 
-Interface web locale s'appuyant sur un ResNet50V2 affiné par transfert d'apprentissage.
+A local web app powered by a ResNet50V2 fine-tuned with transfer learning.
 
 ![Python](https://img.shields.io/badge/Python-3.10%20%7C%203.11-3776AB?logo=python&logoColor=white)
 ![TensorFlow](https://img.shields.io/badge/TensorFlow-2.20-FF6F00?logo=tensorflow&logoColor=white)
 ![Accuracy](https://img.shields.io/badge/Accuracy-89.6%25-16A34A)
 ![AUC](https://img.shields.io/badge/AUC-96.3%25-16A34A)
+![License](https://img.shields.io/badge/License-MIT-blue)
 
 </div>
 
 ---
 
-## Ce que fait le projet
+## What it does
 
-On dépose la photo d'un visage, le modèle répond **REAL** ou **AI-GENERATED**
-avec un score de confiance. Tout s'exécute en local : aucune image ne quitte la
-machine, aucune n'est enregistrée sur le disque.
+You drop a face photo, and the model answers **REAL** or **AI-GENERATED** with a confidence score. Everything runs locally: no image leaves your machine, and nothing is written to disk.
 
-## Résultats
+## Results
 
-Mesurés sur le jeu de test, 5 714 images jamais vues pendant l'entraînement,
-équilibrées à parts égales entre les deux classes.
+Measured on the test set: 5,714 images never seen during training, balanced equally between the two classes.
 
-| Métrique | Valeur |
+| Metric | Value |
 |---|---|
-| Accuracy | **89,64 %** |
-| Precision | 87,32 % |
-| Recall | 92,67 % |
-| AUC | **96,30 %** |
+| Accuracy | **89.64%** |
+| Precision | 87.32% |
+| Recall | 92.67% |
+| AUC | **96.30%** |
 
-Matrice de confusion :
+Confusion matrix:
 
-| | prédit réelle | prédit générée |
+| | predicted real | predicted fake |
 |---|---|---|
-| **image réelle** | 2 647 | 210 |
-| **image générée** | 382 | 2 479 |
+| **real image** | 2,647 | 210 |
+| **generated image** | 382 | 2,479 |
 
-Les erreurs ne sont pas symétriques : 382 images générées passent pour réelles,
-contre 210 vraies photos signalées à tort. C'est le sens d'erreur le plus
-gênant, et il s'ajuste en déplaçant le seuil de décision sans réentraîner.
+Errors are not symmetric: 382 generated images pass as real, versus 210 genuine photos wrongly flagged. This is the more problematic error direction, and it can be tuned by shifting the decision threshold without retraining.
+
+The model was trained on the **140k Real and Fake Faces** dataset (Kaggle).
 
 ## Installation
 
-Il faut **Python 3.10 ou 3.11** — TensorFlow ne supporte pas encore les
-versions plus récentes.
+You need **Python 3.10 or 3.11** (TensorFlow does not support newer versions yet).
 
 ```bash
 git clone https://github.com/WafaaRahmoune/Fake-face-image-detection.git
@@ -62,11 +59,9 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-C'est tout : le modèle est inclus dans le dépôt (`models/resnet50v2_faceguard.keras`,
-97 Mo), il n'y a rien d'autre à télécharger. Le clone est donc un peu long, mais
-le projet fonctionne immédiatement.
+That's all: the model is included in the repository (`models/resnet50v2_faceguard.keras`, 97 MB), so there is nothing else to download. The clone takes a bit longer, but the project works right away.
 
-## Lancement
+## Run
 
 ```bash
 # Windows
@@ -76,32 +71,22 @@ run.bat
 chmod +x run.sh && ./run.sh
 ```
 
-Le navigateur s'ouvre sur <http://127.0.0.1:8000>. **Le premier démarrage prend
-30 à 60 secondes** : c'est le temps d'importer TensorFlow et de construire le
-réseau. Les prédictions suivantes sont immédiates. `Ctrl+C` pour arrêter.
+The browser opens on <http://127.0.0.1:8000>. **The first start takes 30 to 60 seconds** (importing TensorFlow and building the network). Subsequent predictions are instant. Press `Ctrl+C` to stop.
 
-## Guide de test
+## Testing guide
 
-1. **Glisse une photo de visage** dans la zone pointillée, ou clique pour
-   parcourir tes fichiers. Formats acceptés : JPG, PNG, JPEG.
-2. **Clique sur « Analyze Image »**. La première analyse peut prendre une
-   seconde ou deux, les suivantes sont instantanées.
-3. **Lis le résultat.** L'anneau et la barre affichent la confiance ; le
-   bandeau vert signale une photo authentique, le violet une image générée.
+1. **Drop a face photo** into the dashed zone, or click to browse. Accepted formats: JPG, PNG, JPEG.
+2. **Click "Analyze Image".** The first analysis may take a second or two; the next ones are instant.
+3. **Read the result.** The ring and bar show the confidence; a green banner means an authentic photo, a purple one a generated image.
 
-Pour un test représentatif :
+For a representative test:
 
-- Prends **des visages centrés et cadrés serré** : le modèle a été entraîné
-  sur ce type d'images et se dégrade sur des scènes larges ou des visages de
-  profil.
-- Teste **les deux classes**. Un test uniquement sur des vraies photos ne dit
-  rien de la capacité à détecter les fausses.
-- Pour des images générées, les sites de type *this-person-does-not-exist*
-  fournissent des exemples immédiats.
-- **Une erreur isolée n'est pas un échec** : le modèle se trompe environ une
-  fois sur dix. Il faut une vingtaine d'images pour se faire une idée juste.
+- Use **centered, tightly cropped faces**: the model was trained on this kind of image and degrades on wide scenes or profile faces.
+- Test **both classes**. Testing only on real photos says nothing about the ability to detect fakes.
+- For generated images, sites like *this-person-does-not-exist* provide instant examples.
+- **A single mistake is not a failure**: the model is wrong about one time in ten. You need around twenty images to form a fair opinion.
 
-Le serveur expose aussi une petite API si tu veux automatiser :
+The server also exposes a small API if you want to automate:
 
 ```bash
 curl http://127.0.0.1:8000/api/status
@@ -113,91 +98,81 @@ curl -X POST http://127.0.0.1:8000/api/predict \
 # {"label": "real", "score": 0.9214, "confiance": 92.1}
 ```
 
-## Comment ça marche
+## How it works
 
-### Le modèle
+### The model
 
-Un **ResNet50V2** pré-entraîné sur ImageNet, dont on a retiré la couche de
-classification d'origine pour lui greffer une tête binaire :
+A **ResNet50V2** pre-trained on ImageNet, with its original classification layer removed and a binary head grafted on:
 
 ```
-Entrée 224 × 224 × 3
-  └─ ResNet50V2 (pré-entraîné ImageNet, pooling moyen global)  → 2048 features
-  └─ Dense 256, ReLU
-  └─ BatchNormalization
-  └─ Dropout 50 %
-  └─ Dense 128, ReLU
-  └─ Dropout 30 %
-  └─ Dense 1, sigmoid          →  probabilité que l'image soit réelle
+Input 224x224x3
+  |- ResNet50V2 (ImageNet pre-trained, global average pooling)  ->  2048 features
+  |- Dense 256, ReLU
+  |- BatchNormalization
+  |- Dropout 50%
+  |- Dense 128, ReLU
+  |- Dropout 30%
+  |- Dense 1, sigmoid  ->  probability that the image is real
 ```
 
-### L'entraînement, en deux temps
+### Training, in two stages
 
 | | Phase 1 | Phase 2 |
 |---|---|---|
-| Base pré-entraînée | gelée | 100 dernières couches dégelées |
-| Époques | 10 | 5 |
-| Taux d'apprentissage | 10⁻³ | 10⁻⁵ |
-| Arrêt | — | early stopping |
+| Pre-trained base | frozen | last 100 layers unfrozen |
+| Epochs | 10 | 5 |
+| Learning rate | 1e-3 | 1e-5 |
+| Stopping | (none) | early stopping |
 
-La base est gelée au départ parce que la tête démarre avec des poids
-aléatoires : ses gradients sont énormes au premier passage et détruiraient les
-poids pré-entraînés. Une fois la tête stabilisée, on dégèle le haut du réseau
-avec un taux cent fois plus faible, pour l'ajuster sans l'abîmer.
+The base is frozen at first because the head starts with random weights: its gradients are huge on the first pass and would destroy the pre-trained weights. Once the head is stable, the top of the network is unfrozen with a learning rate a hundred times smaller, to fine-tune it without damaging it.
 
-### Le prétraitement
+### Preprocessing
 
 ```
-Undersampling → Resize 224×224 → Normalisation /255
-   → Augmentation (rotation, zoom, décalage, fill_mode='nearest')
-   → Mélange → Lots de 32
+Undersampling  ->  Resize 224x224  ->  Normalize /255
+  ->  Augmentation (rotation, zoom, shift, fill_mode='nearest')
+  ->  Shuffle  ->  Batches of 32
 ```
 
-L'augmentation et le mélange ne s'appliquent **qu'à l'entraînement**.
-Validation et test reçoivent les images intactes, sinon les métriques ne
-seraient pas reproductibles.
+Augmentation and shuffling apply **only to training**. Validation and test receive the images untouched, otherwise the metrics would not be reproducible.
 
-### Deux détails à ne pas rater
+### Two details not to miss
 
-**La normalisation n'est pas optionnelle.** Le modèle attend des pixels dans
-`[0, 1]`, obtenus par simple division par 255. En lui envoyant des pixels bruts
-`0-255`, il sature : il renvoie la même valeur pour toutes les images et
-l'accuracy retombe à 50 %. Vérifié sur 600 images.
+**Normalization is not optional.** The model expects pixels in `[0, 1]`, obtained by dividing by 255. Feeding it raw `0-255` pixels saturates it: it returns the same value for every image and accuracy drops to 50%. Verified on 600 images.
 
-| Entrée | Accuracy | AUC |
+| Input | Accuracy | AUC |
 |---|---|---|
-| `x / 255` | **89,2 %** | **97,1 %** |
-| pixels bruts `0-255` | 50,0 % | 10,9 % |
+| `x / 255` | **89.2%** | **97.1%** |
+| raw pixels `0-255` | 50.0% | 10.9% |
 
-**Le sens de la sortie.** `flow_from_directory()` trie les dossiers par ordre
-alphabétique, donc `fake` → 0 et `real` → 1. Une sortie sigmoid **proche de 1
-signifie image réelle**.
+**The meaning of the output.** `flow_from_directory()` sorts folders alphabetically, so `fake` is 0 and `real` is 1. A sigmoid output **close to 1 means a real image**.
 
-## Structure du dépôt
+## Repository structure
 
 ```
 FaceGuard/
 ├── app/
-│   ├── server.py       serveur HTTP, bibliothèque standard uniquement
-│   ├── model.py        chargement du modèle et prédiction
-│   ├── page.html       interface complète : structure, styles, comportement
-│   └── assets/         logo et illustrations
-├── models/             le fichier de poids (non versionné, voir Releases)
-├── notebooks/          notebook d'entraînement
+│   ├── server.py       HTTP server, standard library only
+│   ├── model.py        model loading and prediction
+│   ├── page.html       full interface: structure, styles, behavior
+│   └── assets/         logo and illustrations
+├── models/             the weights file (resnet50v2_faceguard.keras, 97 MB, included in the repo)
+├── notebooks/          training notebook
 ├── requirements.txt
 ├── run.bat / run.sh
 └── README.md
 ```
 
-Trois fichiers seulement pour l'application, sans framework web ni build.
-`page.html` est relu à chaque requête : on peut retoucher le design et
-rafraîchir le navigateur sans redémarrer le serveur, donc sans recharger le
-modèle.
+Only three files for the application, with no web framework and no build step. `page.html` is re-read on every request, so you can tweak the design and refresh the browser without restarting the server, and therefore without reloading the model.
 
 ## Technologies
 
-**Deep learning** — TensorFlow, Keras, ResNet50V2 pré-entraîné sur ImageNet
-**Données** — NumPy, Pillow, OpenCV, imagehash pour la déduplication
-**Évaluation** — scikit-learn, Matplotlib, Seaborn
-**Interface** — Python (bibliothèque standard), HTML, CSS, JavaScript sans framework
-**Entraînement** — Kaggle, GPU
+- **Deep learning:** TensorFlow, Keras, ResNet50V2 pre-trained on ImageNet
+- **Data:** NumPy, Pillow, OpenCV, imagehash for deduplication
+- **Evaluation:** scikit-learn, Matplotlib, Seaborn
+- **Interface:** Python (standard library), HTML, CSS, JavaScript, no framework
+- **Training:** Kaggle, GPU
+
+## License
+
+Released under the MIT License. See [LICENSE](LICENSE).
