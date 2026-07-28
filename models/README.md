@@ -1,21 +1,23 @@
-# Emplacement du modèle
+# Modèle
 
-Dépose ici le fichier de poids. Le serveur charge automatiquement le premier
-fichier `.keras` ou `.h5` qu'il trouve dans ce dossier.
+`resnet50v2_faceguard.keras` — 97 Mo, inclus dans le dépôt.
 
-```
-models/resnet50v2_faceguard.keras
-```
+Le serveur charge automatiquement le premier fichier `.keras` ou `.h5` trouvé
+dans ce dossier, il n'y a donc rien à configurer.
 
-Ce dossier est volontairement vide dans le dépôt : le modèle pèse 97 Mo, ce qui
-dépasse la taille raisonnable pour un fichier versionné dans git. Il est
-distribué via les **Releases** du dépôt.
+## Caractéristiques
 
-## Récupérer le modèle
+| | |
+|---|---|
+| Architecture | ResNet50V2 pré-entraîné ImageNet + tête binaire |
+| Entrée | 224 × 224 × 3, pixels normalisés dans **[0, 1]** |
+| Sortie | 1 neurone sigmoid — proche de **1 = image réelle** |
+| Accuracy | 89,64 % sur 5 714 images de test |
+| AUC | 96,30 % |
 
-1. Ouvre l'onglet **Releases** du dépôt GitHub
-2. Télécharge `resnet50v2_faceguard.keras`
-3. Place-le dans ce dossier
+Le fichier a été réexporté sans l'état de l'optimiseur : 97 Mo au lieu de 277,
+pour des prédictions strictement identiques. Les 180 Mo retirés étaient les
+moments de l'optimiseur Adam, utiles seulement pour reprendre un entraînement.
 
 ## Utiliser un autre fichier
 
@@ -29,5 +31,11 @@ set FACEGUARD_MODEL=C:\chemin\vers\mon_modele.keras && run.bat
 FACEGUARD_MODEL=/chemin/vers/mon_modele.keras ./run.sh
 ```
 
-Le modèle doit respecter l'architecture attendue : entrée 224×224×3, sortie
-d'un seul neurone sigmoid, pixels normalisés dans [0, 1]. Voir `app/model.py`.
+Il doit respecter la même convention : entrée 224 × 224 × 3 normalisée dans
+[0, 1], sortie d'un seul neurone sigmoid. Voir `app/model.py`.
+
+## Note
+
+Les formats `.h5`, `.pt`, `.pth` et `.onnx` sont exclus du versionnement. Le
+`.h5` d'origine fait 277 Mo, ce qui dépasse la limite de 100 Mo par fichier
+imposée par GitHub : son push serait refusé.

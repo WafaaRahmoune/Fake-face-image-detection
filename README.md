@@ -62,9 +62,9 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Récupère ensuite le modèle depuis l'onglet **Releases** du dépôt et place
-`resnet50v2_faceguard.keras` dans le dossier `models/`. Il n'est pas versionné
-dans git : 97 Mo, c'est trop lourd pour un dépôt.
+C'est tout : le modèle est inclus dans le dépôt (`models/resnet50v2_faceguard.keras`,
+97 Mo), il n'y a rien d'autre à télécharger. Le clone est donc un peu long, mais
+le projet fonctionne immédiatement.
 
 ## Lancement
 

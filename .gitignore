@@ -1,7 +1,9 @@
 # ── Modèles ────────────────────────────────────────────────────────────────
-# Le ResNet50V2 pèse 97 Mo, au-delà de la limite confortable de GitHub.
-# Il se distribue via les Releases du dépôt, pas via git. Voir le README.
-models/*.keras
+# Le ResNet50V2 (models/resnet50v2_faceguard.keras, 97 Mo) EST versionné, pour
+# que le dépôt soit utilisable tel quel après un simple clone.
+#
+# Les autres formats restent exclus : le .h5 d'origine fait 277 Mo, au-delà de
+# la limite de 100 Mo par fichier imposée par GitHub, et son push serait rejeté.
 models/*.h5
 models/*.pt
 models/*.pth
