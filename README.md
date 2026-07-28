@@ -211,14 +211,3 @@ modèle.
 **Évaluation** — scikit-learn, Matplotlib, Seaborn
 **Interface** — Python (bibliothèque standard), HTML, CSS, JavaScript sans framework
 **Entraînement** — Kaggle, GPU
-
-## Limites connues
-
-- Entraîné sur des **visages cadrés serré** en 256×256 : les performances
-  chutent sur des scènes larges, des profils marqués ou des visages partiellement
-  masqués.
-- Le modèle apprend les signatures des générateurs **présents dans le jeu de
-  données**. Face à une méthode de génération plus récente, rien ne garantit
-  qu'il tienne.
-- Environ **une erreur sur dix**, et plus souvent dans le sens d'une image
-  générée acceptée comme réelle. À ne pas utiliser comme preuve d'authenticité.
