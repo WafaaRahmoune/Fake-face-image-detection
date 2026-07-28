@@ -194,16 +194,6 @@ Trois fichiers seulement pour l'application, sans framework web ni build.
 rafraîchir le navigateur sans redémarrer le serveur, donc sans recharger le
 modèle.
 
-## Dépannage
-
-| Symptôme | Cause et solution |
-|---|---|
-| `Aucun modele trouve` | Le fichier n'est pas dans `models/`. Voir `models/README.md`. |
-| `ValueError: Invalid dtype: tuple` | Un `.h5` sauvegardé avec Keras 3.8 lu par une version plus récente. `model.py` le détecte et reconstruit l'architecture automatiquement — si l'erreur remonte quand même, c'est que l'architecture du fichier diffère. |
-| Le port 8000 est occupé | `set FACEGUARD_PORT=8080` (Windows) ou `FACEGUARD_PORT=8080 ./run.sh`. |
-| `No module named tensorflow` | L'environnement virtuel n'est pas activé, ou `pip install -r requirements.txt` n'a pas été lancé. |
-| Démarrage très lent | Normal au premier lancement. Au-delà de deux minutes, vérifie ta version de Python : 3.12+ n'est pas supporté par TensorFlow 2.20. |
-
 ## Technologies
 
 **Deep learning** — TensorFlow, Keras, ResNet50V2 pré-entraîné sur ImageNet
